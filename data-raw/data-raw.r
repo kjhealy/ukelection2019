@@ -136,6 +136,10 @@ cid <- stringr::str_remove(urls, "http://bbc.com/news/politics/constituencies/")
 
 con_table <- tibble(cid = cid, constituency = constituency_names)
 
+## We should save this.
+write_csv(con_table, path = "data-raw/constituency-ids.csv")
+
+
 ###--------------------------------------------------
 ### Scrape the results from each constituency page
 ###--------------------------------------------------
@@ -156,18 +160,21 @@ constituency_pages <- urls %>%
 page_list <- pluck(constituency_pages, "result") %>% 
   compact()
 
+names(page_list) <- stringr::str_remove(names(page_list), "data-raw/constituencies")
+
 ## Make a vector of clean file names of the form "data-raw/constituencies/constituency_name.html"
 ## One for every constituency. Same order as the constituency_pages list.
-fnames <-paste0(here(), "data-raw/constituencies/", 
-                janitor::make_clean_names(names(page_list)),
-                ".html") 
+fnames <-paste0(here(), "/data-raw/constituencies/", 
+                janitor::make_clean_names(names(page_list)))
+
+fnames <- str_replace(fnames, "_html", ".html")
 
 ## Walk the elements of the page list and the file names to 
 ## save each HTML file under is respective clean file name
 walk2(page_list, fnames, ~ write_xml(.x, file = .y))
 
 
-### Now you can just do this:
+### Now henceforth you can just do this:
 
 ## The filenames we just created
 local_urls <- fs::dir_ls("data-raw/constituencies/")
