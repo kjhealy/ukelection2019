@@ -227,6 +227,9 @@ ukvote2019 <- df
 
 usethis::use_data(ukvote2019, overwrite = TRUE)
 
+
+## drat::insertPackage("../ukelection2019_0.0.0.9000.tar.gz", "/Users/kjhealy/Documents/source/drat", commit = TRUE)
+
 not_gb <- c("Democratic Unionist Party",
             "Sinn Fein", "Social Democratic & Labour Party",
             "Ulster Unionist Party", "Independent")
