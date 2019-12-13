@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # UK Election 2019 Vote Results
 
 <!-- badges: start -->
+[![Travis build status](https://travis-ci.org/kjhealy/ukelection2019.svg?branch=master)](https://travis-ci.org/kjhealy/ukelection2019)
 <!-- badges: end -->
 
 A data package scraped from the BBC Election webpage.
