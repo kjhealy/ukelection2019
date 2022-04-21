@@ -2,21 +2,21 @@ library(tidyverse)
 library(rvest)
 
 parse_results <- function(party) {
-    
+
     party_name <- party %>%
         html_nodes(".ge2019-constituency-result__party-name") %>%
         html_text()
-    
+
     candidate <- party %>%
         html_nodes(".ge2019-constituency-result__candidate-name") %>%
         html_text()
 
-    keys <- party %>% 
+    keys <- party %>%
         html_nodes(".ge2019-constituency-result__details-key") %>%
         html_text() %>%
         janitor::make_clean_names()
 
-    values <- party %>% 
+    values <- party %>%
         html_nodes(".ge2019-constituency-result__details-value") %>%
         html_text() %>%
         str_remove_all(",") %>%
@@ -28,13 +28,13 @@ parse_results <- function(party) {
     out <- tibble(party_name, candidate, keys, values) %>%
         pivot_wider(names_from = keys,
                     values_from = values)
-    out 
+    out
 }
 
 
 parse_constituency <- function(page) {
     constituency <- page %>%
-        html_nodes(".constituency-title__title") %>% html_text()    
+        html_nodes(".constituency-title__title") %>% html_text()
 
     electorate <-  page %>%
         html_nodes(".ge2019-constituency-result-turnout__electorate") %>%
@@ -46,7 +46,7 @@ parse_constituency <- function(page) {
     parties <- page %>%
         html_nodes(".ge2019-constituency-result__list") %>%
         html_nodes(".ge2019__party--border")
-    
+
     results <- map_df(parties, parse_results)
     out <- data.frame(constituency, electorate, results)
     as_tibble(out)
@@ -144,7 +144,7 @@ write_csv(con_table, path = "data-raw/constituency-ids.csv")
 ### Scrape the results from each constituency page
 ###--------------------------------------------------
 
-constituency_pages <- urls %>% 
+constituency_pages <- urls %>%
   map(~ {
     message(glue::glue("* parsing: {.x}"))
     Sys.sleep(5) # try to be polite
@@ -155,21 +155,21 @@ constituency_pages <- urls %>%
 ### Save all the pages locally
 ###--------------------------------------------------
 
-## Drop the safely() error codes from the initial scrape, and 
+## Drop the safely() error codes from the initial scrape, and
 ## and also drop any NULL entries
-page_list <- pluck(constituency_pages, "result") %>% 
+page_list <- pluck(constituency_pages, "result") %>%
   compact()
 
 names(page_list) <- stringr::str_remove(names(page_list), "data-raw/constituencies")
 
 ## Make a vector of clean file names of the form "data-raw/constituencies/constituency_name.html"
 ## One for every constituency. Same order as the constituency_pages list.
-fnames <-paste0(here(), "/data-raw/constituencies/", 
+fnames <-paste0(here(), "/data-raw/constituencies/",
                 janitor::make_clean_names(names(page_list)))
 
 fnames <- str_replace(fnames, "_html", ".html")
 
-## Walk the elements of the page list and the file names to 
+## Walk the elements of the page list and the file names to
 ## save each HTML file under is respective clean file name
 walk2(page_list, fnames, ~ write_xml(.x, file = .y))
 
@@ -180,13 +180,13 @@ walk2(page_list, fnames, ~ write_xml(.x, file = .y))
 local_urls <- fs::dir_ls("data-raw/constituencies/")
 
 
-constituency_pages <- local_urls %>% 
+constituency_pages <- local_urls %>%
   map(~ {
     message(glue::glue("* parsing: {.x}"))
     safely(read_html)(.x)
   })
 
-page_list <- pluck(constituency_pages, "result") %>% 
+page_list <- pluck(constituency_pages, "result") %>%
   compact()
 
 
@@ -218,7 +218,7 @@ by_seats <- df %>%
 mps <- df %>% group_by(constituency) %>%
     filter(votes==max(votes))  %>%
         ungroup() %>%
-        arrange(desc(vote_share_percent)) 
+        arrange(desc(vote_share_percent))
 
 
 df <- df %>%
@@ -230,7 +230,7 @@ df <- left_join(df, con_table)
 df <- df %>% select(cid, constituency, everything())
 
 
-ukvote2019 <- df
+ukvote2019 <- ungroup(df)
 
 usethis::use_data(ukvote2019, overwrite = TRUE)
 
@@ -293,7 +293,7 @@ p + geom_bar(stat="identity", position="stack") +
     coord_flip() +
     theme(legend.position="top") +
     guides(fill = guide_legend(label.position = "bottom", title.position = "top",
-                               keywidth = 3, title.hjust = 0.5)) + 
+                               keywidth = 3, title.hjust = 0.5)) +
     labs(x=NULL,
          y="Percent of Seats Won",
          fill="Winning Party",

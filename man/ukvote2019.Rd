@@ -4,7 +4,8 @@
 \name{ukvote2019}
 \alias{ukvote2019}
 \title{United Kingdom 2019 General Election Results}
-\format{A tibble with 3,320 rows and 13 columns
+\format{
+A tibble with 3,320 rows and 13 columns
 
 \describe{
 \item{\code{cid}}{Constituency TOPO id}
@@ -20,7 +21,8 @@
 \item{\code{turnout}}{Total number of votes cast in constituency}
 \item{\code{fname}}{First name of candidate}
 \item{\code{lname}}{Last name of candidate}
-}}
+}
+}
 \source{
 BBC https://www.bbc.com/news/politics/constituencies
 }
